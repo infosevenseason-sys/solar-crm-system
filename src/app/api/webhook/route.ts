@@ -12,19 +12,26 @@ export async function POST(req: Request) {
     if (message) {
       const phone = message.from;
 
-      // 1. DATABASE SAVE (Separate Try-Catch)
+      // 1. DATABASE SAVE (With Force Connect & Detailed Error)
       try {
-        await prisma.customer.upsert({
+        console.log("Attempting DB connection...");
+        await prisma.$connect(); // Force connection
+        
+        const result = await prisma.customer.upsert({
           where: { phone: phone },
-          update: { name: "Active User" },
-          create: { phone: phone, name: "WhatsApp Lead" }
+          update: { name: "WhatsApp Active" },
+          create: { phone: phone, name: "New WhatsApp Lead" }
         });
-        console.log("DB Success for:", phone);
-      } catch (dbError) {
-        console.error("DATABASE FAIL BUT CONTINUING:", dbError);
+        
+        console.log("✅ DB SUCCESS:", result);
+      } catch (dbError: any) {
+        // Aa line tamane sachi error batavse logs ma
+        console.error("❌ DATABASE FAIL:", dbError.message || dbError);
+      } finally {
+        await prisma.$disconnect();
       }
 
-      // 2. WHATSAPP REPLY (Aa javuj joie)
+      // 2. WHATSAPP REPLY (Aa perfect chale j che)
       const token = process.env.WHATSAPP_ACCESS_TOKEN;
       const phoneId = process.env.WHATSAPP_PHONE_ID;
 
