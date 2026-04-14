@@ -1,9 +1,7 @@
+// Fakt aa EK J block rakho
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
-}
-generator client {
-  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -13,7 +11,7 @@ datasource db {
 }
 
 model Customer {
-  id        String   @id @default(cuid())
+  id        Int      @id @default(autoincrement())
   phone     String   @unique
   name      String?
   createdAt DateTime @default(now())
